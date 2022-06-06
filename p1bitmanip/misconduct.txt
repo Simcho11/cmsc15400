@@ -1,0 +1,22 @@
+Hello,
+
+I am confessing an academic misconduct. I copied solutions from this repo:
+
+https://github.com/vcwseas/CMSC15400/blob/master/p1bitmanip/bits.c
+
+I believe this was a past UChicago student (taking this class sometime around 2014). Their CNetID is victorcheung.
+
+The solutions I copied were absVal, addOK, fitsBits, rotateLeft, and greatestBitPos.
+
+The reasoning behind my dishonesty (on absVal and addOK) was the fact that these functions were some the first ones I did. Instead of seeking the proper help I turned to online help and found this repo. While I knew it was wrong the temptation was too great and took down the first couple solutions from the repo (that being absVal and addOk). I did this because I had not yet figured out the "tricks" behind working on the project and in my impatience copied solutions. The next functions (rotateLeft, fitsBit, and greatestBitPos) were ones I particularly struggled with. I spent lots of time working on them and again instead of seeking proper help I turned the the online solutions because I knew it was there at that point.
+
+This is the one and only source I copied solutions from, and these are the only functions that I copied. If there are any other functions were detected, my stance is that those functions are my own work and are not copied.
+
+
+I also did NOT share or receive solutions from any other student. If someone else's code in the class is similar to mine it is because they copied from the same repo, NOT because we worked together.
+
+Thank you for your time.
+
+Sincerely,
+
+Simon Chong (CNetID schong)
