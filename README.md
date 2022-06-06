@@ -30,4 +30,17 @@ In this project I programmed a cache simulator. This cache simulator takes a val
 - A better understanding of how cache eviction works
 
 ## P4: Shell
-coming soon
+For this project I programmed my own shell from scratch. This shell is able to parse a command line into arguments and create a child process which run the command. When the child process finishes, the shell then prompts the user again for another command.
+
+**Successes**
+- Created a shell that can run pretty much anything the Unix shell can
+
+**Room for Improvement**
+- Did not get a fully correct result
+- Extremely unoptimized
+- Very hard to read
+
+**Takeaways**
+- A deep understanding of how child processes work
+- Practice parsing C "strings"
+
