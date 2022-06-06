@@ -1,0 +1,230 @@
+#include "cachelab.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <getopt.h>
+#include <math.h>
+
+int lru = 0;
+int hits = 0;
+int misses = 0;
+int evictions = 0;
+
+struct cacheLine {
+    int validBit;
+    int lru;
+    long tag;
+} cacheLine;
+
+struct trace {
+    char operation;
+    long memory;
+    int tsize;
+} trace;
+
+struct cacheLine makeLine(int vb, int lru, long tag) {
+    struct cacheLine ret;
+    ret.validBit = vb;
+    ret.lru = lru;
+    ret.tag = tag;
+    return ret;
+}
+
+int getOffset(int blockBits, long address) {
+    int mask = (1 << blockBits) - 1;;
+    //printf("offset mask: %d\n",mask);
+    return address & mask;
+}
+
+int getSet(int blockBits, int indexBits, long address) {
+    address = address >> blockBits;
+    int mask = (1 << indexBits) - 1;
+    //printf("set mask: %d\n",mask);
+    return address & mask;
+}
+
+long getTag(int blockBits, int indexBits, long address) {
+    return address >> (indexBits + blockBits);
+}
+
+void checkCache(struct cacheLine **cache, int set, int assoc, unsigned long address, long tag, int offset, int hits, int misses, int evictions, int lru, int verbose, int *counter) {
+    
+    //hit
+    for (int i = 0; i < assoc; i++) {
+        struct cacheLine currCache = cache[set][i];
+        if (currCache.tag == tag && currCache.validBit == 1) {
+            if (verbose == 1) {
+                printf("HIT\n");
+            }
+            counter[0]++;
+            currCache.lru = lru;
+            return;
+        }
+    }
+        
+    //if you get to here, you didn't hit
+    counter[1]++;
+    if (verbose == 1) {
+        printf("MISS\n");
+    }
+    
+    //miss
+    int n_lru = 0;
+    for (int i = 0; i < assoc; i++) {
+        if (cache[set][i].validBit == 0) {
+            cache[set][i].validBit = 1;
+            cache[set][i].tag = tag;
+            cache[set][i].lru = lru;
+            return;
+        }
+        else {
+            if (cache[set][n_lru].lru > cache[set][i].lru) {
+                n_lru = i;
+            }
+        }
+    }
+    
+    //eviction
+    counter[2]++;
+    if (verbose == 1) {
+        printf("EVICTION\n");
+    }
+    cache[set][n_lru].validBit = 1;
+    cache[set][n_lru].tag = tag;
+    cache[set][n_lru].lru = lru;
+    
+    return;
+}
+
+int main(int argc, char *argv[])
+{
+    int *counter = (int*)malloc(sizeof(int)*3);
+    printf("working\n");
+    //unsigned char *c;
+
+    int indexBits; //s
+    int assoc; //E
+    int blockBits; //b
+    int verbose = 0; //v
+    char *traceFile = "default"; //t
+
+    int numSets;
+
+    int opt;
+
+    while ((opt = getopt(argc, argv, "hvs:E:b:t:")) != -1) {
+    //parses input args
+        switch (opt) {
+            case 'h':
+            case 'v':
+                verbose = 1;
+                printf("v: %d\n",verbose);
+                break;
+            case 's':
+                indexBits = atoi(optarg);
+                printf("s: %d\n",indexBits);
+                break;
+            case 'E':
+                assoc = atoi(optarg);
+                printf("E: %d\n",assoc);
+                break;
+            case 'b':
+                blockBits = atoi(optarg);
+                printf("b: %d\n",blockBits);
+                break;
+            case 't':
+                traceFile = optarg;
+                break;
+            default:
+                fprintf(stderr,"ERROR");
+                exit(1);
+        }
+    }
+    
+    //initialize sets
+    numSets = pow(2,indexBits);
+    FILE *f = fopen(traceFile , "r");
+
+    unsigned char op = 0;
+    unsigned long address = 0;
+    unsigned int size = 0;
+    int arrLen = 0;
+    
+    while(fscanf(f, " %c %lx,%d ", &op, &address, &size) > 0) {
+        //gets array size
+        printf("%c ",op);
+        printf("%lx ",address);
+        printf("%d \n",size);
+        arrLen++;
+    }
+
+    struct trace *traceArr = (struct trace*)malloc(sizeof(struct trace) * arrLen);
+
+    int i = 0;
+    
+    rewind(f);
+
+    while(fscanf(f, " %c %lx,%d ", &op, &address, &size) > 0) {
+        //make array of traces
+        struct trace t;
+        t.operation = op;
+        t.memory = address;
+        t.tsize = size;
+        traceArr[i] = t;
+        i++;
+    }
+
+
+    struct cacheLine **cache = (struct cacheLine**)malloc(sizeof(struct cacheLine*) * numSets);
+    
+    //initializing cache
+    for (int i = 0; i < numSets; i++) {
+        struct cacheLine *set = (struct cacheLine*)malloc(sizeof(struct cacheLine) * assoc);
+        cache[i] = set;
+    }
+    
+    struct trace curr;
+    int offset;
+    int set;
+    unsigned long tag;
+    address = 0;
+    char operation;
+    size = 0;
+    
+    //cache simulation
+    for (int i = 0; i < arrLen; i++) {
+        //printf("iterate\n");
+        //gets the trace
+        curr = traceArr[i];
+        operation = curr.operation;
+        address = curr.memory;
+        size = curr.tsize;
+        
+        //printf("%ld\n",address);
+        
+        //parses trace
+        offset = getOffset(blockBits, address);
+        set = getSet(blockBits, indexBits, address);
+        tag = getTag(blockBits, indexBits, address);
+        
+        //printf("o: %d, s: %d, t: %ld\n",offset,set,tag);
+        
+        //checks the cache
+        if (operation == 'L') {
+            checkCache(cache, set, assoc, address, tag, offset, hits, misses, evictions, lru, verbose, counter);
+            //break;
+        } else if (operation == 'M') {
+            checkCache(cache, set, assoc, address, tag, offset, hits, misses, evictions, lru, verbose, counter);
+            checkCache(cache, set, assoc, address, tag, offset, hits, misses, evictions, lru, verbose, counter);
+            //break;
+        } else if (operation == 'S') {
+            checkCache(cache, set, assoc, address, tag, offset, hits, misses, evictions, lru, verbose, counter);
+            //break;
+        }
+        
+    }
+    
+    printSummary(counter[0], counter[1], counter[2]);
+
+
+}
