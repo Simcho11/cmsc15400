@@ -1,16 +1,3 @@
-schong p1bitmanip grade: 88/98 
-~~~~~~~~~~~~~~~~~~~~~
- 
-TA NOTE: there was a case of academic dishonesty associated with this submission, causing the grade to be docked as follows:
-
-absVal (-3)
-addOK  (-2.5)
-fitsBits (-2)
-rotateLeft (-2.5)
-greatestBitPos (-3)
-Total: min(10, 13) = 10
-
-~~~~~~~~~~~~~~~~~~~~~
 https://phoenixforge.cs.uchicago.edu/svn/schong-cs154-spr-22/p1bitmanip 
 Grading revision: 29 
 
