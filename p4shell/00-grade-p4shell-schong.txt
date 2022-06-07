@@ -1,4 +1,4 @@
-schong p4shell grade: 88/100 
+schong p4shell grade: 94/100 
  
 https://phoenixforge.cs.uchicago.edu/svn/schong-cs154-spr-22 
 We graded your revision number: 70 
@@ -249,7 +249,7 @@ Diffing advancedRedirection_concat_rd_1
 > www
 
 
-advancedRedirection_concat 0  6
+advancedRedirection_concat 6  6
 ----------------------------------
 Running batch file: emptyInput
 Diffing emptyInput.stdout
@@ -272,6 +272,6 @@ two arguments        2  2
 does not exist       2  2
 File name            1  1
 Makefile and README  5  5
-total                88  100
+total                94  100
 
-Final Grade: 88
+Final Grade: 94
